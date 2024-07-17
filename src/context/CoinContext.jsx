@@ -1,0 +1,41 @@
+import { createContext, useEffect, useState } from "react";
+
+
+export const CoinContext = createContext();
+
+const CoinContextProvider = (props) => {
+
+    const [allCoins, setAllCoins] = useState([]);
+    const [displayCoin, setDisplayCoin] = useState([]);
+    const [currency, setCurrency] = useState({
+        name: 'usd',
+        symbol: '$'
+    })
+
+    const fetchAllCoins = async () => {
+        const options = {
+            method: 'GET',
+            headers: { accept: 'application/json', 'x-cg-demo-api-key': 'CG-B3a8DR1XNi2oxPahWWeJJbn7' }
+        };
+
+        fetch(`https://api.coingecko.com/api/v3/coins/markets?vs_currency=${currency.name}`, options)
+            .then(response => response.json())
+            .then(response => setAllCoins(response))
+            .catch(err => console.error(err));
+    }
+
+    useEffect(() => {
+        fetchAllCoins();
+    }, [currency])
+
+    const contextValue = {
+        allCoins, currency, setCurrency, displayCoin, setDisplayCoin
+    }
+
+    return (
+        <CoinContext.Provider value={contextValue}>
+            {props.children}
+        </CoinContext.Provider>
+    )
+}
+export default CoinContextProvider;
